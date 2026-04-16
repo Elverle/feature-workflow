@@ -1,4 +1,4 @@
-# Feature Dev Workflow
+# Feature Workflow
 
 **Move fast without collapsing everything into one oversized chat context.**
 
