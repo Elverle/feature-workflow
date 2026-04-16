@@ -1,31 +1,21 @@
 # Feature Dev Workflow
 
+**Move fast without collapsing everything into one oversized chat context.**
+
 Feature Dev Workflow is a multi-agent setup built around a single orchestrator, `feature-dev`, that delegates work to specialized agents for prompt refinement, requirements, design, planning, implementation, review, and logging.
 
 The repository ships two variants:
 
 - `.github/agents` is the active VS Code-oriented setup.
-- `portable/agents` is a runtime-neutral baseline already prepared to be placed into provider-specific folders depending on the target CLI or host.
+- `portable/agents` is a runtime-neutral baseline ready to be dropped into provider-specific folders. See the [Claude Code setup](#claude-code-setup) section below for concrete instructions.
 
-The main goal is simple: move fast without collapsing everything into one oversized chat context.
+## Why This Setup Works
 
-## Highlights
+A single-agent workflow collapses all concerns into one growing context. As scope expands, quality degrades. This workflow keeps each agent focused on a narrow responsibility, so context stays tight and outputs stay reliable.
 
-- Single orchestration entry point with `feature-dev`
-- Optional `prompt-builder` for vague or under-scoped requests
-- Internal routing as `frontend`, `backend`, or `full-stack`
-- Conditional `designer` phase only when the feature has a real user-facing surface
-- Mandatory gated approvals through `vscode/askQuestions`
-- Parallel implementation waves managed by `planner`
-- Dedicated `code-reviewer` approval step before closeout
-- Checkpoint and synthesis logging through `logger`
-- Repository-local layout ready to be shared on GitHub
+The orchestrator, `feature-dev`, owns routing and approvals. Specialized subagents handle the rest. Backend work skips the design phase entirely. Only phases that actually run are logged.
 
-## Why the VS Code Variant Matters
-
-The strongest version of this workflow is the VS Code one because it can rely on native tools instead of forcing every approval step into normal chat turns.
-
-In particular, `vscode/askQuestions` is not just a UX detail. It is a cost and control advantage: the workflow can stop at the right checkpoints, ask for explicit approval, and continue only when needed without burning extra premium requests on avoidable back-and-forth. That keeps the gated workflow strict while making the orchestration materially more efficient.
+The VS Code variant is operationally stronger because it uses native tools like `vscode/askQuestions` for approval gates. This is not just a UX detail: it prevents unnecessary premium-request consumption during checkpoints and keeps the workflow strict without burning tokens on avoidable back-and-forth.
 
 ## Agent Architecture
 
@@ -69,20 +59,20 @@ In particular, `vscode/askQuestions` is not just a UX detail. It is a cost and c
 
 ## Workflow
 
-At runtime, the workflow looks like this:
+At runtime, the workflow executes in this order:
 
 1. Prompt intake
 2. Internal routing as `frontend`, `backend`, or `full-stack`
 3. Requirements creation
-4. Optional design phase
+4. Optional design phase (frontend and full-stack only)
 5. Planning
 6. Implementation
 7. Code review
 8. Logging and closeout
 
-Important behavior:
+Key behaviors:
 
-- `prompt-builder` is optional.
+- `prompt-builder` is optional. If the request is already well-scoped, `feature-dev` accepts it directly.
 - FE/BE/full-stack detection always happens, but it is not logged as a dedicated phase.
 - Backend-only work skips `designer`.
 - Only phases that actually run are checkpointed by `logger`.
@@ -107,9 +97,9 @@ flowchart TD
 
 ## Quick Start
 
-### Prerequisites
+### VS Code Setup
 
-For the VS Code variant, you need:
+Prerequisites:
 
 - VS Code with GitHub Copilot custom agents support
 - GitHub Copilot access enabled for chat and agents
@@ -118,10 +108,6 @@ For the VS Code variant, you need:
 
 If your environment does not automatically discover repository-local agents, verify the relevant VS Code settings such as `chat.agentFilesLocations`.
 
-If you want to run the workflow in a different runtime (CLAUDE, CODEX, etc), you can copy the portable agents into the folder structure expected by your target environment.
-
-### Setup
-
 ```bash
 git clone https://github.com/Elverle/feature-workflow
 cd feature-workflow
@@ -129,45 +115,66 @@ cd feature-workflow
 
 Open the repository in VS Code. The agents are versioned directly in `.github/agents`, so the project is already structured for repository-based sharing.
 
-If you want to adapt the workflow to another runtime, start from `portable/agents`: those files are already generalized and ready to be copied into the folder structure expected by the target tool (es .claude/.codex).
+### Claude Code Setup
+
+`portable/agents` contains runtime-neutral agent files with no VS Code-specific tooling. These are designed to be dropped into Claude Code's custom agent directory without modification.
+
+**Step 1 — Clone the repository**
+
+```bash
+git clone https://github.com/Elverle/feature-workflow
+cd feature-workflow
+```
+
+**Step 2 — Copy the portable agents into your target project**
+
+Claude Code discovers agents from the `.claude/agents/` folder at the root of your project. Copy the portable agents there:
+
+```bash
+cp portable/agents/*.md /path/to/your-project/.claude/agents/
+```
+
+If `.claude/agents/` does not exist yet, create it first:
+
+```bash
+mkdir -p /path/to/your-project/.claude/agents/
+```
+
+**Step 3 — Copy the frontend-design skill (optional)**
+
+If your project includes frontend work and you want the designer subagent to use the skill, copy it as well:
+
+```bash
+mkdir -p /path/to/your-project/.claude/skills/frontend-design/
+cp .github/skills/frontend-design/SKILL.md /path/to/your-project/.claude/skills/frontend-design/
+```
+
+**Step 4 — Start the workflow**
+
+Open Claude Code in your project and invoke the orchestrator:
+
+```
+@feature-dev Build a dashboard for tracking payout reconciliation and add the backend endpoints that power it.
+```
+
+**Approval gates in Claude Code**
+
+The VS Code variant uses `vscode/askQuestions` for gated approvals. In Claude Code, the portable agents fall back to standard chat-turn confirmations: the orchestrator will ask for explicit approval at each checkpoint before continuing. This is slightly less efficient in token usage but functionally equivalent.
+
+**Differences from the VS Code variant**
+
+| Capability                | VS Code                      | Claude Code                 |
+| ------------------------- | ---------------------------- | --------------------------- |
+| Approval gates            | Native `vscode/askQuestions` | Chat-turn confirmations     |
+| Agent discovery           | `.github/agents/`            | `.claude/agents/`           |
+| File write tools          | Native VS Code filesystem    | Claude Code bash/edit tools |
+| Token efficiency at gates | Higher                       | Slightly lower              |
 
 ### Use the Right Entry Point
 
 - Use `feature-dev` for the full orchestrated workflow.
-- Use `prompt-builder` when the request is still too vague.
+- Use `prompt-builder` when the request is still too vague to scope.
 - Use `logger` when you want to document decisions or notes outside the main workflow.
-
-## Repository Structure
-
-```text
-.
-|-- README.md
-|-- .github/
-|   |-- agents/
-|   |   |-- feature-dev.agent.md
-|   |   |-- prompt-builder.agent.md
-|   |   |-- logger.agent.md
-|   |   |-- requirements-creator.subagent.agent.md
-|   |   |-- designer.subagent.agent.md
-|   |   |-- planner.subagent.agent.md
-|   |   |-- implementer.subagent.agent.md
-|   |   `-- code-reviewer.subagent.agent.md
-|   `-- skills/
-|       `-- frontend-design/
-|           `-- SKILL.md
-|-- docs/
-|-- portable/
-|   |-- agents/
-|   `-- docs/
-`-- feature/
-    `-- feature-{number}/
-```
-
-Notes:
-
-- `feature/` is a generated output area used by the workflow at runtime.
-- `docs/` is available for project documentation and examples.
-- `portable/` contains the runtime-neutral agent copies for non-VS Code environments.
 
 ## Examples
 
@@ -218,10 +225,34 @@ Typical outputs include:
 
 At repository level, the workflow can also maintain `feature-index.md`.
 
-## Why This Setup Works
+## Repository Structure
 
-- The orchestrator keeps control of routing and approvals.
-- The VS Code variant is operationally stronger because native tools such as `vscode/askQuestions` reduce unnecessary premium-request consumption during approval gates.
-- Specialized agents keep context narrower and more reliable.
-- Backend work is not forced through unnecessary design steps.
-- The workflow preserves a useful documentation trail without over-logging internal routing decisions.
+```text
+.
+|-- README.md
+|-- .github/
+|   |-- agents/
+|   |   |-- feature-dev.agent.md
+|   |   |-- prompt-builder.agent.md
+|   |   |-- logger.agent.md
+|   |   |-- requirements-creator.subagent.agent.md
+|   |   |-- designer.subagent.agent.md
+|   |   |-- planner.subagent.agent.md
+|   |   |-- implementer.subagent.agent.md
+|   |   `-- code-reviewer.subagent.agent.md
+|   `-- skills/
+|       `-- frontend-design/
+|           `-- SKILL.md
+|-- docs/
+|-- portable/
+|   |-- agents/
+|   `-- docs/
+`-- feature/
+    `-- feature-{number}/
+```
+
+Notes:
+
+- `feature/` is a generated output area used by the workflow at runtime.
+- `docs/` is available for project documentation and examples.
+- `portable/` contains the runtime-neutral agent copies for non-VS Code environments.
