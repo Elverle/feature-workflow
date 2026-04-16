@@ -31,40 +31,40 @@ In particular, `vscode/askQuestions` is not just a UX detail. It is a cost and c
 
 ### Orchestrator
 
-- [.github/agents/feature-dev.agent.md](.github/agents/feature-dev.agent.md)
+- [feature-dev.agent.md](.github/agents/feature-dev.agent.md)
   - Owns the full workflow.
   - Handles routing, approvals, and phase transitions.
   - Treats FE/BE classification as an internal routing decision, not a standalone logged phase.
 
 ### User-Facing Agents
 
-- [.github/agents/prompt-builder.agent.md](.github/agents/prompt-builder.agent.md)
+- [prompt-builder.agent.md](.github/agents/prompt-builder.agent.md)
   - Refines raw requests into approved prompts.
   - Explicitly classifies requests as `frontend`, `backend`, or `full-stack`.
 
-- [.github/agents/logger.agent.md](.github/agents/logger.agent.md)
+- [logger.agent.md](.github/agents/logger.agent.md)
   - Saves phase summaries, feature summaries, notes, and ADR-style documentation.
 
 ### Subagents
 
-- [.github/agents/requirements-creator.subagent.agent.md](.github/agents/requirements-creator.subagent.agent.md)
+- [requirements-creator.subagent.agent.md](.github/agents/requirements-creator.subagent.agent.md)
   - Expands the approved prompt into structured requirements.
 
-- [.github/agents/designer.subagent.agent.md](.github/agents/designer.subagent.agent.md)
+- [designer.subagent.agent.md](.github/agents/designer.subagent.agent.md)
   - Produces UX concepts and static prototypes for frontend-facing work.
 
-- [.github/agents/planner.subagent.agent.md](.github/agents/planner.subagent.agent.md)
+- [planner.subagent.agent.md](.github/agents/planner.subagent.agent.md)
   - Breaks the approved scope into implementation waves and dependencies.
 
-- [.github/agents/implementer.subagent.agent.md](.github/agents/implementer.subagent.agent.md)
+- [implementer.subagent.agent.md](.github/agents/implementer.subagent.agent.md)
   - Implements individual tasks and writes tests.
 
-- [.github/agents/code-reviewer.subagent.agent.md](.github/agents/code-reviewer.subagent.agent.md)
+- [code-reviewer.subagent.agent.md](.github/agents/code-reviewer.subagent.agent.md)
   - Reviews correctness, security, maintainability, and test coverage.
 
 ### Skill
 
-- [.github/skills/frontend-design/SKILL.md](.github/skills/frontend-design/SKILL.md)
+- [frontend-design/SKILL.md](.github/skills/frontend-design/SKILL.md)
   - Used by the Designer to improve frontend quality and visual direction.
 
 ## Workflow
@@ -93,7 +93,7 @@ Important behavior:
 flowchart TD
     U[User Request] --> FD[feature-dev]
     FD --> PB[prompt-builder optional]
-    FD --> RT{Internal routing\nfrontend / backend / full-stack}
+    FD --> RT{Internal routing\nFE/BE/full-stack}
     PB --> RT
     RT --> RC[requirements-creator]
     RC --> DG{Needs design?}
@@ -109,6 +109,8 @@ flowchart TD
 
 ### Prerequisites
 
+For the VS Code variant, you need:
+
 - VS Code with GitHub Copilot custom agents support
 - GitHub Copilot access enabled for chat and agents
 - A git repository for the target project
@@ -116,11 +118,13 @@ flowchart TD
 
 If your environment does not automatically discover repository-local agents, verify the relevant VS Code settings such as `chat.agentFilesLocations`.
 
+If you want to run the workflow in a different runtime (CLAUDE, CODEX, etc), you can copy the portable agents into the folder structure expected by your target environment.
+
 ### Setup
 
 ```bash
-git clone <your-repo-url>
-cd featureDev_workflow
+git clone https://github.com/Elverle/feature-workflow
+cd feature-workflow
 ```
 
 Open the repository in VS Code. The agents are versioned directly in `.github/agents`, so the project is already structured for repository-based sharing.
