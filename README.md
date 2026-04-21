@@ -32,8 +32,8 @@ The VS Code variant is operationally stronger because it uses native tools like 
   - Refines raw requests into approved prompts.
   - Explicitly classifies requests as `frontend`, `backend`, or `full-stack`.
 
-- [logger.agent.md](.github/agents/logger.agent.md)
-  - Saves phase summaries, feature summaries, notes, and ADR-style documentation.
+- [documenter.agent.md](.github/agents/documenter.agent.md)
+  - Saves phase checkpoints, final feature summaries, notes, and ADR-style documentation.
 
 ### Subagents
 
@@ -75,7 +75,7 @@ Key behaviors:
 - `prompt-builder` is optional. If the request is already well-scoped, `feature-dev` accepts it directly.
 - FE/BE/full-stack detection always happens, but it is not logged as a dedicated phase.
 - Backend-only work skips `designer`.
-- Only phases that actually run are checkpointed by `logger`.
+- Every approved phase that actually runs is checkpointed by `documenter`, followed by a final synthesis pass at closeout.
 
 ## Flow Diagram
 
@@ -92,7 +92,7 @@ flowchart TD
     DS --> PL
     PL --> IM[implementer]
     IM --> CR[code-reviewer]
-    CR --> LG[logger]
+    CR --> DC[documenter]
 ```
 
 ## Quick Start
@@ -174,7 +174,7 @@ The VS Code variant uses `vscode/askQuestions` for gated approvals. In Claude Co
 
 - Use `feature-dev` for the full orchestrated workflow.
 - Use `prompt-builder` when the request is still too vague to scope.
-- Use `logger` when you want to document decisions or notes outside the main workflow.
+- Use `documenter` when you want to document decisions or notes outside the main workflow.
 
 ## Examples
 
@@ -190,7 +190,7 @@ What happens:
 2. It classifies the feature as `backend`.
 3. It invokes `requirements-creator`.
 4. It skips `designer`.
-5. It invokes `planner`, `implementer`, `code-reviewer`, and `logger`.
+5. It invokes `planner`, `implementer`, `code-reviewer`, and `documenter`.
 
 ### Full-Stack Request
 
@@ -234,7 +234,7 @@ At repository level, the workflow can also maintain `feature-index.md`.
 |   |-- agents/
 |   |   |-- feature-dev.agent.md
 |   |   |-- prompt-builder.agent.md
-|   |   |-- logger.agent.md
+|   |   |-- documenter.agent.md
 |   |   |-- requirements-creator.subagent.agent.md
 |   |   |-- designer.subagent.agent.md
 |   |   |-- planner.subagent.agent.md

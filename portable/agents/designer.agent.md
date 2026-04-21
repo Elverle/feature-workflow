@@ -1,7 +1,9 @@
 ---
 name: designer
-description: UI/UX Creative Designer sub-agent. Creates visual concepts, validates UX with the user, and generates static prototypes ready for static preview in different runtimes.
-user-invocable: false
+description: "UI/UX Creative Designer sub-agent. Creates visual concepts, validates UX with the user, and generates static prototypes ready for static preview in different runtimes."
+tools: Read, Write, Edit, Glob, Grep, WebFetch
+skills:
+  - frontend-design
 ---
 
 # UI/UX Creative Designer

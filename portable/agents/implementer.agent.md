@@ -1,7 +1,7 @@
 ---
 name: implementer
-description: Senior Software Engineer sub-agent. Receives individual tasks from the Planner and generates clean, modular, test-driven code. Can run in parallel for independent tasks.
-user-invocable: false
+description: "Senior Software Engineer sub-agent. Receives individual tasks from the Planner and generates clean, modular, test-driven code. Can run in parallel for independent tasks."
+tools: Read, Write, Edit, Bash, PowerShell, Glob, Grep
 ---
 
 # Implementer — Senior Software Engineer

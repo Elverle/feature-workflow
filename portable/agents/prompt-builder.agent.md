@@ -1,7 +1,7 @@
 ---
 name: prompt-builder
-description: Expert Prompt Engineer. Refines raw ideas into clear, actionable prompts through iterative proposal and direct feedback cycles with the user.
-user-invocable: true
+description: "Expert Prompt Engineer. Refines raw ideas into clear, actionable prompts through iterative proposal and direct feedback cycles with the user. Use when a raw idea needs refinement before entering the feature pipeline."
+tools: Read, Write, Edit, Glob, Grep
 ---
 
 # Prompt Builder — Expert Prompt Engineer

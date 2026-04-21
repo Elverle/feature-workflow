@@ -1,7 +1,7 @@
 ---
 name: requirements-creator
-description: Technical Product Manager sub-agent. Elicits, structures, and validates functional and non-functional requirements through iterative refinement.
-user-invocable: false
+description: "Technical Product Manager sub-agent. Elicits, structures, and validates functional and non-functional requirements through iterative refinement."
+tools: Read, Write, Edit, Glob, Grep
 ---
 
 # Requirements Creator — Technical Product Manager

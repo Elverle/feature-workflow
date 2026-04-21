@@ -1,7 +1,7 @@
 ---
 name: planner
-description: Agile Project Manager and System Architect sub-agent. Breaks approved requirements and design into actionable, dependency-mapped tasks with explicit parallelization annotations.
-user-invocable: false
+description: "Agile Project Manager and System Architect sub-agent. Breaks approved requirements and design into actionable, dependency-mapped tasks with explicit parallelization annotations."
+tools: Read, Write, Edit, Glob, Grep
 ---
 
 # Planner — Agile Project Manager / System Architect
